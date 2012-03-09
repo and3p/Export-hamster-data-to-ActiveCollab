@@ -12,6 +12,13 @@
       </object>
     </child>
     <child>
+      <object class="GtkAction" id="ac_export">
+        <property name="label" translatable="yes">Export visible records to AC</property>
+        <property name="icon_name">document-test</property>
+        <signal name="activate" handler="on_ac_export_activate" swapped="no"/>
+      </object>
+    </child>
+    <child>
       <object class="GtkAction" id="close">
         <property name="stock_id">gtk-close</property>
         <signal name="activate" handler="on_close_activate" swapped="no"/>
@@ -65,6 +72,24 @@
                       <object class="GtkMenuItem" id="report_button">
                         <property name="visible">True</property>
                         <property name="related_action">export</property>
+                      </object>
+                    </child>
+                <child>
+                      <object class="GtkSeparatorMenuItem" id="export_sep_top">
+                        <property name="visible">True</property>
+                        <property name="use_action_appearance">False</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="ac_export_button">
+                        <property name="visible">True</property>
+                        <property name="related_action">ac_export</property>
+                      </object>
+                    </child>
+                <child>
+                      <object class="GtkSeparatorMenuItem" id="export_sep_bottom">
+                        <property name="visible">True</property>
+                        <property name="use_action_appearance">False</property>
                       </object>
                     </child>
                     <child>

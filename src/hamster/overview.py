@@ -380,6 +380,12 @@ class Overview(object):
 
         dialogs.edit.show(self, fact_date = selected_date)
 
+    def on_ac_export_activate(self, action):
+        import copy
+        from ac_export_hamster import Exporter
+        facts = copy.deepcopy(self.facts)
+        Exporter(facts)
+
     def on_remove_activate(self, button):
         self.overview.delete_selected()
 
