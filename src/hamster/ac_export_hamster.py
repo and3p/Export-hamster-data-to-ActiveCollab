@@ -75,11 +75,16 @@ class Exporter(object):
             ticket_id = self._fetch_ticket_id(value['project'], value['ticket'])
             if not ticket_id:
                 continue
+            value["ticket_id"] = ticket_id
+            value["duration_minutes"] = int(act.getAttribute("duration_minutes"))
+            body = act.getAttribute("description").strip()
             if key in result:
-                result[key]['duration_minutes'] = int(result[key]['duration_minutes']) + int(value["duration_minutes"])
-                if value["body"]:
-                    result[key]['body'] = ' ; '.join([result[key]['body'], value["body"]])
+                result[key]['duration_minutes'] += value["duration_minutes"]
+                if body and body not in result[key]['body']:
+                    result[key]['body'].append(body)
             else:
+                value["body"] = []
+                if body: value["body"].append(body)
                 result[key] = value
 
         return result
@@ -127,7 +132,7 @@ class Exporter(object):
 
         for item in facts.items():
             comment_entry = gtk.Entry()
-            comment_entry.set_text(item[1]['body'])
+            comment_entry.set_text(', '.join(item[1]['body']))
             all_comments[item[0]] = comment_entry
 
             duration = time.strftime('%H:%M', time.gmtime(int(item[1]['duration_minutes'])*60))
