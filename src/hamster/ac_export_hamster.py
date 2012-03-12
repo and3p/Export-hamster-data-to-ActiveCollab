@@ -54,7 +54,10 @@ class Exporter(object):
                               "/tickets/"+ticket_id_in_proj+"&token="+settings.API_KEY+
                               '&format=xml')
 
-        f = urllib2.urlopen(req)
+        try:
+            f = urllib2.urlopen(req)
+        except:
+            return False #TODO NEED POPUP ALERT!
         result = parseString(f.read())
         ticket_id = result.getElementsByTagName('id')[0].childNodes[0].nodeValue
         return ticket_id
@@ -65,18 +68,23 @@ class Exporter(object):
 
         for act in activities:
             project_ticket = re.match(settings.REGEX, act.getAttribute(settings.URL_ATTRIBUTE))
-            if project_ticket == None:
+            if not project_ticket:
                 continue
             key = project_ticket.string
             value = project_ticket.groupdict()
-            value["ticket_id"] = self._fetch_ticket_id(value['project'], value['ticket'])
-            value["duration_minutes"] = act.getAttribute("duration_minutes")
-            value["body"] = act.getAttribute("description")
+            ticket_id = self._fetch_ticket_id(value['project'], value['ticket'])
+            if not ticket_id:
+                continue
+            value["ticket_id"] = ticket_id
+            value["duration_minutes"] = int(act.getAttribute("duration_minutes"))
+            body = act.getAttribute("description").strip()
             if key in result:
-                result[key]['duration_minutes'] = int(result[key]['duration_minutes']) + int(value["duration_minutes"])
-                if value["body"]:
-                    result[key]['body'] = ' ; '.join([result[key]['body'], value["body"]])
+                result[key]['duration_minutes'] += value["duration_minutes"]
+                if body and body not in result[key]['body']:
+                    result[key]['body'].append(body)
             else:
+                value["body"] = []
+                if body: value["body"].append(body)
                 result[key] = value
 
         return result
@@ -116,7 +124,7 @@ class Exporter(object):
         all_comments = dict()
         all_times = dict()
 
-        dialog = gtk.Dialog("Tai kaiiii geruma langs...",
+        dialog = gtk.Dialog("Sending data overview",
                             None,
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                             (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
@@ -124,7 +132,7 @@ class Exporter(object):
 
         for item in facts.items():
             comment_entry = gtk.Entry()
-            comment_entry.set_text(item[1]['body'])
+            comment_entry.set_text(', '.join(item[1]['body']))
             all_comments[item[0]] = comment_entry
 
             duration = time.strftime('%H:%M', time.gmtime(int(item[1]['duration_minutes'])*60))
