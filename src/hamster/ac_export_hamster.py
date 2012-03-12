@@ -124,7 +124,7 @@ class Exporter(object):
         all_comments = dict()
         all_times = dict()
 
-        dialog = gtk.Dialog("Tai kaiiii geruma langs...",
+        dialog = gtk.Dialog("Sending data overview",
                             None,
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                             (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
