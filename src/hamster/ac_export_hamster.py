@@ -54,7 +54,10 @@ class Exporter(object):
                               "/tickets/"+ticket_id_in_proj+"&token="+settings.API_KEY+
                               '&format=xml')
 
-        f = urllib2.urlopen(req)
+        try:
+            f = urllib2.urlopen(req)
+        except:
+            return False #TODO NEED POPUP ALERT!
         result = parseString(f.read())
         ticket_id = result.getElementsByTagName('id')[0].childNodes[0].nodeValue
         return ticket_id
@@ -65,13 +68,13 @@ class Exporter(object):
 
         for act in activities:
             project_ticket = re.match(settings.REGEX, act.getAttribute(settings.URL_ATTRIBUTE))
-            if project_ticket == None:
+            if not project_ticket:
                 continue
             key = project_ticket.string
             value = project_ticket.groupdict()
-            value["ticket_id"] = self._fetch_ticket_id(value['project'], value['ticket'])
-            value["duration_minutes"] = act.getAttribute("duration_minutes")
-            value["body"] = act.getAttribute("description")
+            ticket_id = self._fetch_ticket_id(value['project'], value['ticket'])
+            if not ticket_id:
+                continue
             if key in result:
                 result[key]['duration_minutes'] = int(result[key]['duration_minutes']) + int(value["duration_minutes"])
                 if value["body"]:
